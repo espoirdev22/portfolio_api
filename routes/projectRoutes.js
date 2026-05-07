@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const { protect } = require("../middleware/auth");
 const {
   createProject,
   getAllProjects,
@@ -8,21 +9,18 @@ const {
   deleteProject,
 } = require("../controllers/projectController");
 
-// ─────────────────────────────────────────────
-//  Routes CRUD pour les projets
-// ─────────────────────────────────────────────
+// GET    /api/projects        → public
+// POST   /api/projects        → protégé
+router.route("/")
+  .get(getAllProjects)
+  .post(protect, createProject);
 
-// POST   /api/projects        → Ajouter un projet
-// GET    /api/projects        → Retourner tous les projets
-router.route("/").post(createProject).get(getAllProjects);
-
-// GET    /api/projects/:id    → Retourner un projet par ID
-// PUT    /api/projects/:id    → Modifier un projet
-// DELETE /api/projects/:id   → Supprimer un projet
-router
-  .route("/:id")
+// GET    /api/projects/:id    → public
+// PUT    /api/projects/:id    → protégé
+// DELETE /api/projects/:id   → protégé
+router.route("/:id")
   .get(getProjectById)
-  .put(updateProject)
-  .delete(deleteProject);
+  .put(protect, updateProject)
+  .delete(protect, deleteProject);
 
 module.exports = router;

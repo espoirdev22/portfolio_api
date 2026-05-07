@@ -3,6 +3,7 @@ const express = require("express");
 const cors = require("cors");
 const connectDB = require("./config/connectdb");
 const projectRoutes = require("./routes/projectRoutes");
+const authRoutes = require('./routes/authRoutes')
 
 connectDB();
 
@@ -13,6 +14,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use("/api/projects", projectRoutes);
+app.use("/api/auth", authRoutes);
 
 app.get("/", (req, res) => {
   res.json({
@@ -25,6 +27,7 @@ app.get("/", (req, res) => {
       "GET    /api/projects/:id": "Retourner un projet par ID",
       "PUT    /api/projects/:id": "Modifier un projet",
       "DELETE /api/projects/:id": "Supprimer un projet",
+      "POST   /api/auth/login":   "Connexion admin",
     },
   });
 });
