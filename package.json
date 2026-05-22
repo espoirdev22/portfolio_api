@@ -4,13 +4,17 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    
-    "test": "jest --forceExit --testTimeout=10000"
+    "test": "jest --forceExit --testTimeout=10000 --coverage"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
+  "jest": {
+    "collectCoverage": true,
+    "coverageReporters": ["lcov", "text"],
+    "coverageDirectory": "coverage"
+  },
   "dependencies": {
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
