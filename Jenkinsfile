@@ -31,6 +31,27 @@ pipeline {
             }
         }
 
+        stage('SonarQube Analysis') {
+            steps {
+                withSonarQubeEnv('SonarQube') {
+                    sh '''
+                        npx sonar-scanner \
+                        -Dsonar.projectKey=portfolioApi \
+                        -Dsonar.sources=. \
+                        -Dsonar.host.url=http://sonarqube:9000
+                    '''
+                }
+            }
+        }
+
+        stage('Quality Gate') {
+            steps {
+                timeout(time: 2, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                }
+            }
+        }
+
         stage('Docker Build') {
             steps {
                 sh 'docker build -t espoirdev22/portfolio_api_espress .'
