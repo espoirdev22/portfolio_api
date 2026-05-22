@@ -38,7 +38,7 @@ pipeline {
                         npx sonar-scanner \
                         -Dsonar.projectKey=portfolioApi \
                         -Dsonar.sources=. \
-                        -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
+                        -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info \
                         -Dsonar.host.url=http://sonarqube:9000
                     '''
                 }
