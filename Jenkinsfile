@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    tools {
+        nodejs 'NodeJS'
+    }
+
     stages {
 
         stage('Clone Repo') {
@@ -40,7 +44,7 @@ pipeline {
                         -Dsonar.sources=. \
                         -Dsonar.exclusions=coverage/**,node_modules/** \
                         -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info \
-                        -Dsonar.host.url=http://sonarqube:9000
+                        -Dsonar.host.url=http://sonarqube-service.devops.svc.cluster.local:9000
                     '''
                 }
             }
@@ -83,14 +87,10 @@ pipeline {
 
     post {
         success {
-            mail to: 'saloudiallo151@gmail.com',
-                 subject: "✅ Build SUCCESS - ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-                 body: "Build #${env.BUILD_NUMBER} réussi !\n\nVoir : ${env.BUILD_URL}"
+            echo "✅ Build SUCCESS - ${env.JOB_NAME} #${env.BUILD_NUMBER}"
         }
         failure {
-            mail to: 'saloudiallo151@gmail.com',
-                 subject: "❌ Build FAILED - ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-                 body: "Build #${env.BUILD_NUMBER} a échoué.\n\nVoir : ${env.BUILD_URL}"
+            echo "❌ Build FAILED - ${env.JOB_NAME} #${env.BUILD_NUMBER}"
         }
     }
 }
