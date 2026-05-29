@@ -73,17 +73,10 @@ pipeline {
             }
         }
 
-        stage('Deploy to Render') {
+        stage('Deploy to Kubernetes') {
             steps {
-                withCredentials([string(credentialsId: 'render-api-key', variable: 'RENDER_KEY')]) {
-                    sh '''
-                        curl -X POST \
-                        "https://api.render.com/v1/services/srv-d84i6t0js32c739s8eh0/deploys" \
-                        -H "Authorization: Bearer $RENDER_KEY" \
-                        -H "Content-Type: application/json" \
-                        -d "{}"
-                    '''
-                }
+                sh 'kubectl rollout restart deployment/portfolio-api -n portfolio'
+                sh 'kubectl rollout status deployment/portfolio-api -n portfolio'
             }
         }
     }
