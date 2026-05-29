@@ -38,20 +38,10 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('SonarQube') {
-                    withCredentials([string(credentialsId: 'sonarqube-token', variable: 'SONAR_TOKEN')]) {
-                        sh '''
-                            sonar-scanner \
-                            -Dsonar.projectKey=portfolioApi \
-                            -Dsonar.sources=. \
-                            -Dsonar.exclusions=coverage/**,node_modules/** \
-                            -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info \
-                            -Dsonar.host.url=http://sonarqube-service.devops.svc.cluster.local:9000 \
-                            -Dsonar.token=$SONAR_TOKEN
-                        '''
+                    sh "${tool 'SonarScanner'}/bin/sonar-scanner"
+                }
             }
         }
-    }
-}
 
         stage('Quality Gate') {
             steps {
