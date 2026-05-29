@@ -40,7 +40,7 @@ pipeline {
                 withSonarQubeEnv('SonarQube') {
                     withCredentials([string(credentialsId: 'sonarqube-token', variable: 'SONAR_TOKEN')]) {
                         sh '''
-                            npx sonar-scanner \
+                            sonar-scanner \
                             -Dsonar.projectKey=portfolioApi \
                             -Dsonar.sources=. \
                             -Dsonar.exclusions=coverage/**,node_modules/** \
@@ -48,10 +48,10 @@ pipeline {
                             -Dsonar.host.url=http://sonarqube-service.devops.svc.cluster.local:9000 \
                             -Dsonar.token=$SONAR_TOKEN
                         '''
-                    }
-                }
             }
         }
+    }
+}
 
         stage('Quality Gate') {
             steps {
