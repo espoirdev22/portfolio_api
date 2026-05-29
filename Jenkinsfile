@@ -38,14 +38,17 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('SonarQube') {
-                    sh '''
-                        npx sonar-scanner \
-                        -Dsonar.projectKey=portfolioApi \
-                        -Dsonar.sources=. \
-                        -Dsonar.exclusions=coverage/**,node_modules/** \
-                        -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info \
-                        -Dsonar.host.url=http://sonarqube-service.devops.svc.cluster.local:9000
-                    '''
+                    withCredentials([string(credentialsId: 'sonarqube-token', variable: 'SONAR_TOKEN')]) {
+                        sh '''
+                            npx sonar-scanner \
+                            -Dsonar.projectKey=portfolioApi \
+                            -Dsonar.sources=. \
+                            -Dsonar.exclusions=coverage/**,node_modules/** \
+                            -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info \
+                            -Dsonar.host.url=http://sonarqube-service.devops.svc.cluster.local:9000 \
+                            -Dsonar.token=$SONAR_TOKEN
+                        '''
+                    }
                 }
             }
         }
