@@ -86,10 +86,31 @@ pipeline {
 
     post {
         success {
-            echo "✅ Build SUCCESS - ${env.JOB_NAME} #${env.BUILD_NUMBER}"
+            emailext(
+                to: 'saloudiallo151@gmail.com',
+                subject: "✅ Build SUCCESS - ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                body: """
+                    Build #${env.BUILD_NUMBER} réussi !
+                    Job      : ${env.JOB_NAME}
+                    Build URL: ${env.BUILD_URL}
+                    ✅ Tests passés
+                    ✅ SonarQube OK
+                    ✅ Docker pushed
+                    ✅ Kubernetes déployé
+                """
+            )
         }
         failure {
-            echo "❌ Build FAILED - ${env.JOB_NAME} #${env.BUILD_NUMBER}"
+            emailext(
+                to: 'saloudiallo151@gmail.com',
+                subject: "❌ Build FAILED - ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                body: """
+                    Build #${env.BUILD_NUMBER} a échoué !
+                    Job      : ${env.JOB_NAME}
+                    Build URL: ${env.BUILD_URL}
+                    Vérifiez les logs pour plus de détails.
+                """
+            )
         }
     }
 }
