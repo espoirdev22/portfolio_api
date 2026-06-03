@@ -3,7 +3,7 @@ pipeline {
 
     tools {
         nodejs 'NodeJS'
-        sonarQube 'SonarScanner'
+        sonarScanner 'SonarScanner'    // ← sonarScanner (pas sonarQube)
     }
 
     environment {
@@ -39,7 +39,11 @@ pipeline {
                 withCredentials([file(credentialsId: 'portfolio-env', variable: 'ENV_FILE')]) {
                     sh 'cp $ENV_FILE .env'
                     sh 'npm test'
-                    sh 'rm -f .env'  // supprime après les tests
+                }
+            }
+            post {
+                always {
+                    sh 'rm -f .env'    // ← déplacé ici, garanti même si npm test échoue
                 }
             }
         }
@@ -49,11 +53,11 @@ pipeline {
                 withSonarQubeEnv('SonarQube') {
                     withCredentials([string(credentialsId: 'sonarqube-token', variable: 'SONAR_TOKEN')]) {
                         sh '''
-                            /opt/sonar-scanner/bin/sonar-scanner \
+                            $SONAR_SCANNER_HOME/bin/sonar-scanner \
                             -Dsonar.projectKey=portfolio-api \
                             -Dsonar.sources=. \
                             -Dsonar.exclusions=node_modules/**,coverage/** \
-                            -Dsonar.host.url=http://sonarqube-service.devops.svc.cluster.local:9000 \
+                            -Dsonar.host.url=http://sonarqube-service.devops-tools.svc.cluster.local:9000 \
                             -Dsonar.token=$SONAR_TOKEN
                         '''
                     }
@@ -138,7 +142,7 @@ pipeline {
         }
         always {
             sh "docker rmi ${IMAGE_NAME}:${IMAGE_TAG} || true"
-            sh 'docker logout'
+            sh 'docker logout || true'    // ← ajout de || true pour éviter l'échec si docker absent
         }
     }
 }
