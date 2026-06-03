@@ -8,7 +8,7 @@ pipeline {
     environment {
         IMAGE_NAME = "espoirdev22/portfolio_api_espress"
         IMAGE_TAG  = "${BUILD_NUMBER}"
-        NAMESPACE  = "portfolio"
+        NAMESPACE  = "devops-tools"
     }
 
     stages {
@@ -82,7 +82,7 @@ pipeline {
         stage('Docker Push') {
             steps {
                 withCredentials([usernamePassword(
-                    credentialsId: 'dockerhub-credentials',
+                    credentialsId: 'dockerhub',
                     usernameVariable: 'DOCKER_USER',
                     passwordVariable: 'DOCKER_PASS'
                 )]) {
