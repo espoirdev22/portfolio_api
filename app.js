@@ -1,4 +1,4 @@
-require("dotenv").config();
+require("dotenv").config({ silent: true });
 const express = require("express");
 const cors = require("cors");
 const connectDB = require("./config/connectdb");
@@ -22,12 +22,12 @@ app.get("/", (req, res) => {
     message: "🚀 API Portfolio opérationnelle",
     version: "1.0.0",
     endpoints: {
-      "GET    /api/projects":     "Retourner tous les projets",
-      "POST   /api/projects":     "Ajouter un projet",
+      "GET    /api/projects": "Retourner tous les projets",
+      "POST   /api/projects": "Ajouter un projet",
       "GET    /api/projects/:id": "Retourner un projet par ID",
       "PUT    /api/projects/:id": "Modifier un projet",
       "DELETE /api/projects/:id": "Supprimer un projet",
-      "POST   /api/auth/login":   "Connexion admin",
+      "POST   /api/auth/login": "Connexion admin",
     },
   });
 });
