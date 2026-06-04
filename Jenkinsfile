@@ -46,17 +46,17 @@ pipeline {
                 }
             }
         }
-
+        
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('SonarQube') {
-                    withCredentials([string(credentialsId: 'sonarqube-token', variable: 'SONAR_TOKEN')]) {
+                    withCredentials([string(credentialsId: 'sonarqube', variable: 'SONAR_TOKEN')]) {
                         sh '''
                             $SONAR_SCANNER_HOME/bin/sonar-scanner \
                             -Dsonar.projectKey=portfolio-api \
                             -Dsonar.sources=. \
                             -Dsonar.exclusions=node_modules/**,coverage/** \
-                            -Dsonar.host.url=http://sonarqube-service.devops-tools.svc.cluster.local:9000 \
+                            -Dsonar.host.url=http://sonarqube.devops-tools.svc.cluster.local:9000 \
                             -Dsonar.token=$SONAR_TOKEN
                         '''
                     }
