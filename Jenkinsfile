@@ -3,6 +3,9 @@ pipeline {
 
     tools {
         nodejs 'NodeJS'
+        // 1. Ajoutez cette ligne. "SonarScanner" doit correspondre EXACTEMENT 
+        // au nom configuré dans "Manage Jenkins" -> "Tools"
+        sonarRunner 'SonarScanner' 
     }
 
     environment {
@@ -12,11 +15,9 @@ pipeline {
     }
 
     stages {
-
         stage('Clone Repo') {
             steps {
-                git branch: 'master',
-                    url: 'https://github.com/espoirdev22/portfolio_api.git'
+                git branch: 'master', url: 'https://github.com/espoirdev22/portfolio_api.git'
             }
         }
 
@@ -42,7 +43,7 @@ pipeline {
             }
             post {
                 always {
-                    sh 'rm -f .env'    // ← déplacé ici, garanti même si npm test échoue
+                    sh 'rm -f .env'
                 }
             }
         }
@@ -50,16 +51,15 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('SonarQube') {
-                    withCredentials([string(credentialsId: 'sonarqube', variable: 'SONAR_TOKEN')]) {
-                        sh '''
-                            $SONAR_SCANNER_HOME/bin/sonar-scanner \
-                            -Dsonar.projectKey=portfolio-api \
-                            -Dsonar.sources=. \
-                            -Dsonar.exclusions=node_modules/**,coverage/** \
-                            -Dsonar.host.url=http://sonarqube.devops-tools.svc.cluster.local:9000 \
-                            -Dsonar.token=$SONAR_TOKEN
-                        '''
-                    }
+                    // Note : Le token est injecté automatiquement par withSonarQubeEnv si configuré dans Jenkins.
+                    // Nous utilisons "sonar-scanner" directement car la section tools l'ajoute automatiquement au PATH.
+                    sh '''
+                        sonar-scanner \
+                        -Dsonar.projectKey=portfolio-api \
+                        -Dsonar.sources=. \
+                        -Dsonar.exclusions=node_modules/**,coverage/** \
+                        -Dsonar.host.url=http://sonarqube.devops-tools.svc.cluster.local:9000
+                    '''
                 }
             }
         }
@@ -141,7 +141,7 @@ pipeline {
         }
         always {
             sh "docker rmi ${IMAGE_NAME}:${IMAGE_TAG} || true"
-            sh 'docker logout || true'    // ← ajout de || true pour éviter l'échec si docker absent
+            sh 'docker logout || true'
         }
     }
 }
