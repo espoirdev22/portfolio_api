@@ -3,8 +3,6 @@ pipeline {
 
     tools {
         nodejs 'NodeJS'
-        // Utilisation du type qualifié complet accepté par votre Jenkins
-        "hudson.plugins.sonar.SonarRunnerInstallation" 'SonarScanner'
     }
 
     environment {
@@ -14,9 +12,11 @@ pipeline {
     }
 
     stages {
+
         stage('Clone Repo') {
             steps {
-                git branch: 'master', url: 'https://github.com/espoirdev22/portfolio_api.git'
+                git branch: 'master',
+                    url: 'https://github.com/espoirdev22/portfolio_api.git'
             }
         }
 
@@ -42,7 +42,7 @@ pipeline {
             }
             post {
                 always {
-                    sh 'rm -f .env'
+                    sh 'rm -f .env'    // ← déplacé ici, garanti même si npm test échoue
                 }
             }
         }
@@ -50,13 +50,16 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('SonarQube') {
-                    sh '''
-                        sonar-scanner \
-                        -Dsonar.projectKey=portfolio-api \
-                        -Dsonar.sources=. \
-                        -Dsonar.exclusions=node_modules/**,coverage/** \
-                        -Dsonar.host.url=http://cluster.local
-                    '''
+                    withCredentials([string(credentialsId: 'sonarqube', variable: 'SONAR_TOKEN')]) {
+                        sh '''
+                            $SONAR_SCANNER_HOME/bin/sonar-scanner \
+                            -Dsonar.projectKey=portfolio-api \
+                            -Dsonar.sources=. \
+                            -Dsonar.exclusions=node_modules/**,coverage/** \
+                            -Dsonar.host.url=http://sonarqube.devops-tools.svc.cluster.local:9000 \
+                            -Dsonar.token=$SONAR_TOKEN
+                        '''
+                    }
                 }
             }
         }
@@ -138,7 +141,7 @@ pipeline {
         }
         always {
             sh "docker rmi ${IMAGE_NAME}:${IMAGE_TAG} || true"
-            sh 'docker logout || true'
+            sh 'docker logout || true'    // ← ajout de || true pour éviter l'échec si docker absent
         }
     }
 }
