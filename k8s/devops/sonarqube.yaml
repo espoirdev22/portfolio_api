@@ -58,4 +58,5 @@ spec:
     app: sonarqube
   ports:
   - port: 9000
+    targetPort: 9000
     nodePort: 30900
