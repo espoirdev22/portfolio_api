@@ -28,7 +28,8 @@ spec:
       serviceAccountName: jenkins-sa
       containers:
       - name: jenkins
-        image: jenkins/jenkins:lts-jdk17
+        image: jenkins-custom:latest
+        imagePullPolicy: Never
         ports:
         - containerPort: 8080
         volumeMounts:

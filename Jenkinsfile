@@ -8,13 +8,15 @@ pipeline {
     environment {
         IMAGE_NAME = "espoirdev22/portfolio_api_espress"
         IMAGE_TAG  = "${BUILD_NUMBER}"
-        NAMESPACE  = "devops-tools"
+        NAMESPACE  = "portfolio"
     }
 
     stages {
+
         stage('Clone Repo') {
             steps {
-                git branch: 'master', url: 'https://github.com'
+                git branch: 'master',
+                    url: 'https://github.com/espoirdev22/portfolio_api.git'
             }
         }
 
@@ -48,21 +50,16 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('SonarQube') {
-                    sh '''
-                        if [ ! -d "sonar-scanner-cli" ]; then
-                            echo "--- Téléchargement de SonarScanner ---"
-                            wget -q https://sonarsource.com
-                            unzip -q sonar-scanner-cli-5.0.1.3006-linux.zip
-                            mv sonar-scanner-5.0.1.3006-linux sonar-scanner-cli
-                        fi
-                        
-                        echo "--- Lancement de l'analyse ---"
-                        ./sonar-scanner-cli/bin/sonar-scanner \
-                        -Dsonar.projectKey=portfolio-api \
-                        -Dsonar.sources=. \
-                        -Dsonar.exclusions=node_modules/**,coverage/** \
-                        -Dsonar.host.url=http://cluster.local
-                    '''
+                    withCredentials([string(credentialsId: 'sonarqube', variable: 'SONAR_TOKEN')]) {
+                        sh '''
+                            sonar-scanner \
+                            -Dsonar.projectKey=portfolio-api \
+                            -Dsonar.sources=. \
+                            -Dsonar.exclusions=node_modules/**,coverage/** \
+                            -Dsonar.host.url=http://sonarqube.devops-tools.svc.cluster.local:9000 \
+                            -Dsonar.token=$SONAR_TOKEN
+                        '''
+                    }
                 }
             }
         }
