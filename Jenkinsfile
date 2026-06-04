@@ -3,7 +3,6 @@ pipeline {
 
     tools {
         nodejs 'NodeJS'
-        sonarrunner 'SonarScanner'
     }
 
     environment {
@@ -47,13 +46,12 @@ pipeline {
                 }
             }
         }
-
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('SonarQube') {
                     withCredentials([string(credentialsId: 'sonarqube', variable: 'SONAR_TOKEN')]) {
                         sh '''
-                            sonar-scanner \
+                            $SONAR_SCANNER_HOME/bin/sonar-scanner \
                             -Dsonar.projectKey=portfolio-api \
                             -Dsonar.sources=. \
                             -Dsonar.exclusions=node_modules/**,coverage/** \
@@ -64,7 +62,6 @@ pipeline {
                 }
             }
         }
-
         stage('Quality Gate') {
             steps {
                 timeout(time: 15, unit: 'MINUTES') {
