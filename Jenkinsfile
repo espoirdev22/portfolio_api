@@ -3,9 +3,8 @@ pipeline {
 
     tools {
         nodejs 'NodeJS'
-        // 1. Ajoutez cette ligne. "SonarScanner" doit correspondre EXACTEMENT 
-        // au nom configuré dans "Manage Jenkins" -> "Tools"
-        sonarRunner 'SonarScanner' 
+        // Utilisation du type qualifié complet accepté par votre Jenkins
+        "hudson.plugins.sonar.SonarRunnerInstallation" 'SonarScanner'
     }
 
     environment {
@@ -51,14 +50,12 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('SonarQube') {
-                    // Note : Le token est injecté automatiquement par withSonarQubeEnv si configuré dans Jenkins.
-                    // Nous utilisons "sonar-scanner" directement car la section tools l'ajoute automatiquement au PATH.
                     sh '''
                         sonar-scanner \
                         -Dsonar.projectKey=portfolio-api \
                         -Dsonar.sources=. \
                         -Dsonar.exclusions=node_modules/**,coverage/** \
-                        -Dsonar.host.url=http://sonarqube.devops-tools.svc.cluster.local:9000
+                        -Dsonar.host.url=http://cluster.local
                     '''
                 }
             }
