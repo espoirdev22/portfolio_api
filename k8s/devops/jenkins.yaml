@@ -26,6 +26,15 @@ spec:
         app: jenkins
     spec:
       serviceAccountName: jenkins-sa
+      initContainers:
+      - name: fix-docker-sock
+        image: busybox
+        command: ['sh', '-c', 'chmod 666 /var/run/docker.sock']
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - name: docker-sock
+          mountPath: /var/run/docker.sock
       containers:
       - name: jenkins
         image: jenkins-custom:latest
@@ -43,7 +52,7 @@ spec:
           claimName: jenkins-pvc
       - name: docker-sock
         hostPath:
-          path: /var/run/docker.sock   # permet à Jenkins de builder des images Docker
+          path: /var/run/docker.sock
 ---
 apiVersion: v1
 kind: Service
