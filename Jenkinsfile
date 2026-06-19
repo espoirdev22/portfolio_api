@@ -112,37 +112,36 @@ pipeline {
     }
 
     post {
-        success {
-            emailext(
-                to: 'saloudiallo151@gmail.com',
-                subject: "✅ Build SUCCESS - ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-                body: """
-                    Build #${env.BUILD_NUMBER} réussi !
-                    Job      : ${env.JOB_NAME}
-                    Build URL: ${env.BUILD_URL}
-                    Image    : ${IMAGE_NAME}:${IMAGE_TAG}
-                    ✅ Tests passés
-                    ✅ SonarQube OK
-                    ✅ Docker pushed
-                    ✅ Kubernetes déployé
-                """
-            )
-        }
-        failure {
-            emailext(
-                to: 'saloudiallo151@gmail.com',
-                subject: "❌ Build FAILED - ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-                body: """
-                    Build #${env.BUILD_NUMBER} a échoué !
-                    Job      : ${env.JOB_NAME}
-                    Build URL: ${env.BUILD_URL}
-                    Vérifiez les logs pour plus de détails.
-                """
-            )
-        }
-        always {
-            sh "docker rmi ${IMAGE_NAME}:${IMAGE_TAG} || true"
-            sh 'docker logout || true'
-        }
+    success {
+        emailext(
+            to: 'saloudiallo151@gmail.com',
+            subject: "Build SUCCESS - ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+            body: """
+                Build #${env.BUILD_NUMBER} reussi !
+                Job      : ${env.JOB_NAME}
+                Build URL: ${env.BUILD_URL}
+                Image    : ${IMAGE_NAME}:${IMAGE_TAG}
+                Tests passes
+                SonarQube OK
+                Docker pushed
+                Kubernetes deploye
+            """
+        )
+    }
+    failure {
+        emailext(
+            to: 'saloudiallo151@gmail.com',
+            subject: "Build FAILED - ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+            body: """
+                Build #${env.BUILD_NUMBER} a echoue !
+                Job      : ${env.JOB_NAME}
+                Build URL: ${env.BUILD_URL}
+                Verifiez les logs pour plus de details.
+            """
+        )
+    }
+    always {
+        sh "docker rmi ${IMAGE_NAME}:${IMAGE_TAG} || true"
+        sh 'docker logout || true'
     }
 }
