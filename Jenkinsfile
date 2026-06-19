@@ -46,6 +46,7 @@ pipeline {
                 }
             }
         }
+
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('SonarQube') {
@@ -65,6 +66,7 @@ pipeline {
                 }
             }
         }
+
         stage('Quality Gate') {
             steps {
                 timeout(time: 15, unit: 'MINUTES') {
@@ -109,39 +111,54 @@ pipeline {
                 sh "kubectl rollout status deployment/portfolio-api -n ${NAMESPACE} --timeout=120s"
             }
         }
+
+        stage('Deploy Monitoring') {
+            steps {
+                sh """
+                    kubectl get namespace monitoring || \
+                    kubectl create namespace monitoring
+                """
+                sh "kubectl apply -f k8s/monitoring/prometheus.yaml"
+                sh "kubectl apply -f k8s/monitoring/grafana.yaml"
+                sh "kubectl rollout status deployment/prometheus -n monitoring --timeout=60s"
+                sh "kubectl rollout status deployment/grafana -n monitoring --timeout=60s"
+            }
+        }
     }
 
     post {
-    success {
-        emailext(
-            to: 'saloudiallo151@gmail.com',
-            subject: "Build SUCCESS - ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-            body: """
-                Build #${env.BUILD_NUMBER} reussi !
-                Job      : ${env.JOB_NAME}
-                Build URL: ${env.BUILD_URL}
-                Image    : ${IMAGE_NAME}:${IMAGE_TAG}
-                Tests passes
-                SonarQube OK
-                Docker pushed
-                Kubernetes deploye
-            """
-        )
-    }
-    failure {
-        emailext(
-            to: 'saloudiallo151@gmail.com',
-            subject: "Build FAILED - ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-            body: """
-                Build #${env.BUILD_NUMBER} a echoue !
-                Job      : ${env.JOB_NAME}
-                Build URL: ${env.BUILD_URL}
-                Verifiez les logs pour plus de details.
-            """
-        )
-    }
-    always {
-        sh "docker rmi ${IMAGE_NAME}:${IMAGE_TAG} || true"
-        sh 'docker logout || true'
+        success {
+            emailext(
+                to: 'saloudiallo151@gmail.com',
+                subject: "Build SUCCESS - ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                body: """
+                    Build #${env.BUILD_NUMBER} reussi !
+                    Job      : ${env.JOB_NAME}
+                    Build URL: ${env.BUILD_URL}
+                    Image    : ${IMAGE_NAME}:${IMAGE_TAG}
+                    Tests passes
+                    SonarQube OK
+                    Docker pushed
+                    Kubernetes deploye
+                    Monitoring deploye
+                """
+            )
+        }
+        failure {
+            emailext(
+                to: 'saloudiallo151@gmail.com',
+                subject: "Build FAILED - ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                body: """
+                    Build #${env.BUILD_NUMBER} a echoue !
+                    Job      : ${env.JOB_NAME}
+                    Build URL: ${env.BUILD_URL}
+                    Verifiez les logs pour plus de details.
+                """
+            )
+        }
+        always {
+            sh "docker rmi ${IMAGE_NAME}:${IMAGE_TAG} || true"
+            sh 'docker logout || true'
+        }
     }
 }
