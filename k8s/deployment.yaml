@@ -12,6 +12,10 @@ spec:
     metadata:
       labels:
         app: portfolio-api
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "3000"
+        prometheus.io/path: "/metrics"
     spec:
       containers:
       - name: portfolio-api
@@ -19,6 +23,26 @@ spec:
         imagePullPolicy: Always
         ports:
         - containerPort: 3000
+          name: http
         envFrom:
         - secretRef:
             name: portfolio-secret
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 3000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 3000
+          initialDelaySeconds: 5
+          periodSeconds: 5
